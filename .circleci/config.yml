@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  slim-ai-test-orb: sreejithfocaloid/harden-test-orb@0.0.1
+  slim-ai-test-orb: slimdevops/harden-test-orb@0.0.1
 parameters:
   image-name:
     description: Image to be scanned.
