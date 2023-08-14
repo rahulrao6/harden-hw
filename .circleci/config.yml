@@ -1,25 +1,21 @@
 version: 2.1
 
 orbs:
-  slim-ai-test-orb: slimdevops/test-harden-orb@0.0.1
+  slim-ai-test-orb: slimdevops/test-harden-orb@0.0.3
 parameters:
   image-name:
-    description: Image to be scanned.
+    description: Image to be hardened.
     type: string
     default: sreejithfocaloid/node-example:latest
-  image-connector:
-    description: Connector.
-    type: string
-    default: dockerhub.public #Connector used by slim to get the image eg:dockerhub.public
   cimg-tag:
     description: Which tag to be used for cimg/base.
     type: string
-    default: current #Which tag to be used for cimg eg:  cimg/base:current
+    default: current #Which tag to be used for cimg. eg:  cimg/base:current
 executors:
   docker-publisher: 
     environment:
       IMAGE_NAME: << pipeline.parameters.image-name >>
-    docker: # Each job requires specifying an executor
+    docker: # Each job requires specifying an executor.
     # (either docker, macos, or machine), see
       - image: cimg/base:<< pipeline.parameters.cimg-tag >>
         auth:
@@ -88,7 +84,6 @@ workflows:
           name: Instrumentation
           requires:
             - Fat Test Suite
-          sourceConnector: << pipeline.parameters.image-connector >>
           sourceImage: << pipeline.parameters.image-name >>
       - runtest:
           name: Instrumented Test Suite
