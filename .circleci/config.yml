@@ -67,7 +67,7 @@ jobs:
             docker stop testcontainer
             docker wait testcontainer
             docker logs testcontainer
-            docker rm --force testcontainer
+            docker rm -f testcontainer
   runInstrumentedtest:
     parameters:
       imageName:
@@ -96,11 +96,11 @@ jobs:
             docker run --volumes-from configs --net=test_network postman/newman:latest run "collection.json"  --reporters cli,junit
       - run:
           name: Stop Container
-          command:
+          command: |
             docker stop testcontainer
             docker wait testcontainer
             docker logs testcontainer
-            docker rm --force testcontainer
+            docker rm -f testcontainer
 workflows:
   engine-execution:
     jobs:
