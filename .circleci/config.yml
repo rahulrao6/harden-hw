@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  slim-ai-test-orb: slimdevops/test-harden-orb@0.0.1
+  slim-ai-test-orb: slimdevops/slim-shield@0.0.1
 parameters:
   image-name:
     description: Image to be hardened.
