@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  slim-ai-test-orb: slimdevops/slim-shield@0.0.1
+  slim-shield: slimdevops/slim-shield@0.0.1
 parameters:
   image-name:
     description: Image to be hardened.
@@ -96,7 +96,7 @@ jobs:
             docker run --volumes-from configs --net=test_network postman/newman:latest run "collection.json"  --reporters cli,junit
       - run:
           name: Stop Container
-          command: |
+          command:
             docker stop testcontainer
             docker wait testcontainer
             docker logs testcontainer
@@ -112,7 +112,7 @@ workflows:
           imageName: rrao2908/scan-hw:latest
           requires:
             - Publish Latest
-      - slim-ai-test-orb/instrumentation:
+      - slim-shield/instrumentation:
           name: Instrumentation
           requires:
             - Fat Test Suite
@@ -122,7 +122,7 @@ workflows:
           imageName: rrao2908/scan-hw:latest.instrumented
           requires:
             - Instrumentation
-      - slim-ai-test-orb/hardening:
+      - slim-shield/hardening:
           name: Hardening
           requires:
             - Instrumentation
