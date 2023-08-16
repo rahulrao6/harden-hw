@@ -67,7 +67,7 @@ jobs:
             docker stop testcontainer
             docker wait testcontainer
             docker logs testcontainer
-            docker rm --force testcontainer
+            docker rm -f testcontainer
   runInstrumentedtest:
     parameters:
       imageName:
@@ -100,7 +100,7 @@ jobs:
             docker stop testcontainer
             docker wait testcontainer
             docker logs testcontainer
-            docker rm --force testcontainer
+            docker rm -f testcontainer
 workflows:
   engine-execution:
     jobs:
