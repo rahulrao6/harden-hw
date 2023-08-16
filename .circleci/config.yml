@@ -1,12 +1,12 @@
 version: 2.1
 
 orbs:
-  slim-ai-test-orb: slimdevops/test-harden-orb@0.0.3
+  slim-ai-test-orb: slimdevops/test-harden-orb@0.0.5
 parameters:
   image-name:
     description: Image to be hardened.
     type: string
-    default: sreejithfocaloid/node-example:latest
+    default: rrao2908/scan-hw:latest
   cimg-tag:
     description: Which tag to be used for cimg/base.
     type: string
@@ -35,7 +35,40 @@ jobs:
             docker build -t << pipeline.parameters.image-name >> .
             docker push << pipeline.parameters.image-name >>
 
-  runtest:
+  runNormaltest:
+    parameters:
+      imageName:
+        type: string
+    docker: # Each job requires specifying an executor
+    # (either docker, macos, or machine), see
+      - image: circleci/node:latest
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+      - run:
+          name: Create Network
+          command: |
+            docker network create test_network
+      - run:
+          name: Start Container
+          command: |
+            docker run --name=testcontainer -d --net=test_network << parameters.imageName >>
+      - run:
+          name: Run Newman tests in Container
+          command: |
+            docker create -v /etc/newman --name configs alpine:3.4 /bin/true
+            docker cp collection.json configs:/etc/newman
+            docker run --volumes-from configs --net=test_network postman/newman:latest run "collection.json"  --reporters cli,junit
+      - run:
+          name: Stop Container
+          command: |
+            docker stop testcontainer
+            docker wait testcontainer
+            docker logs testcontainer
+            docker rm --force testcontainer
+  runInstrumentedtest:
     parameters:
       imageName:
         type: string
@@ -68,16 +101,15 @@ jobs:
             docker wait testcontainer
             docker logs testcontainer
             docker rm --force testcontainer
-
 workflows:
   engine-execution:
     jobs:
       # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment....
       - publishLatestToHub:
           name: Publish Latest
-      - runtest:
+      - runNormaltest:
           name: Fat Test Suite
-          imageName: sreejithfocaloid/node-example:latest
+          imageName: rrao2908/scan-hw:latest
           requires:
             - Publish Latest
       - slim-ai-test-orb/instrumentation:
@@ -85,9 +117,9 @@ workflows:
           requires:
             - Fat Test Suite
           sourceImage: << pipeline.parameters.image-name >>
-      - runtest:
+      - runInstrumentedtest:
           name: Instrumented Test Suite
-          imageName: sreejithfocaloid/node-example:latest.instrumented
+          imageName: rrao2908/scan-hw:latest.instrumented
           requires:
             - Instrumentation
       - slim-ai-test-orb/hardening:
@@ -95,9 +127,9 @@ workflows:
           requires:
             - Instrumentation
             - Instrumented Test Suite
-      - runtest:
+      - runNormaltest:
           name: Hardened Test Suite
-          imageName: sreejithfocaloid/node-example:latest.slimxx
+          imageName: rrao2908/scan-hw:latest.slimxx
           requires:
             - Hardening
       
