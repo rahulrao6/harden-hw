@@ -15,8 +15,8 @@ executors:
   docker-publisher: 
     environment:
       IMAGE_NAME: << pipeline.parameters.image-name >>
-    docker: # Each job requires specifying an executor.
-    # (either docker, macos, or machine), see
+    # Specifies the type of executor for the job (docker, macos, or machine)
+    docker: 
       - image: cimg/base:<< pipeline.parameters.cimg-tag >>
         auth:
           username: $DOCKERHUB_USERNAME
@@ -39,8 +39,8 @@ jobs:
     parameters:
       imageName:
         type: string
-    docker: # Each job requires specifying an executor
-    # (either docker, macos, or machine), see
+    # Specifies the type of executor for the job (docker, macos, or machine)
+    docker: 
       - image: circleci/node:latest
     working_directory: ~/repo
     steps:
@@ -72,8 +72,7 @@ jobs:
     parameters:
       imageName:
         type: string
-    docker: # Each job requires specifying an executor
-    # (either docker, macos, or machine), see
+    docker: 
       - image: circleci/node:latest
     working_directory: ~/repo
     steps:
